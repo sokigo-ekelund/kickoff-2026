@@ -1,0 +1,25 @@
+{
+  "playground": "City Park",
+  "type": "visual",
+  "inspector": "Anna Ek",
+  "date": "2027-01-15T09:30:00Z",
+  "status": "done",
+  "items": [
+    { "title": "Vandalism", "answer": "ok" },
+    { "title": "Broken or missing parts", "answer": "deviation" },
+    { "title": "Glass, litter and contamination", "answer": "deviation" },
+    { "title": "Surface condition and sand depth", "answer": "not_applicable" }
+  ],
+  "deviations": [
+    {
+      "description": "Swing seat cracked, entrapment risk at the mount",
+      "risk_class": "A",
+      "item_index": 1
+    },
+    {
+      "description": "Surface rust on railing by the slide",
+      "risk_class": "C",
+      "item_index": 0
+    }
+  ]
+}

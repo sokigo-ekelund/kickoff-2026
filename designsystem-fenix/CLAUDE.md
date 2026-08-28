@@ -258,3 +258,58 @@ Detta är inte valfritt och ska inte kräva en påminnelse från användaren.
 - [ ] Inga emojis, inga slentrianmässiga gradienter, stram radie
 - [ ] Versionsstämpel uppdaterad (`datum · rev N`) på ändrade sidor — **obligatoriskt**
 - [ ] Fristående kopia ombyggd till `publicerat/` (samma filnamn) efter ändring — **obligatoriskt**
+- [ ] Ny synlig text tillagd i sidans `FX_I18N`-tabell (se §8) — annars blir den kvar på svenska i engelskt läge
+
+---
+
+## 8. Språkstöd (sv/en)
+
+Varje sida är tvåspråkig och har en **jordglobsknapp** i sin chrome (på
+`00-oversikt` sitter den till höger om upphovsnamnet i hjälten). Knappen visar
+aktuellt språk (`SV` / `EN`) och växlar mellan svenska och engelska.
+
+### Så fungerar det
+
+**Svenska är källspråket.** All text står kvar på svenska i markupen — engelska
+läggs på som ett *lager* efter varje render. Ingen text har flyttats till nycklar,
+så sidorna går att läsa och redigera precis som förut.
+
+Varje sidas komponent har:
+
+| Del | Roll |
+|---|---|
+| `FX_I18N` | Uppslagstabell `"svensk text": "english text"` för just den sidan |
+| `applyI18n()` | Går igenom textnoder + `title`/`placeholder`/`alt`/`aria-label` och byter ut det som finns i tabellen |
+| `componentDidMount` / `componentDidUpdate` | Kör `applyI18n()` efter varje render |
+| `state.lang` | `"sv"` eller `"en"`, läses från `localStorage["fenixLang"]` vid start |
+
+Valet sparas i `localStorage` under nyckeln **`fenixLang`** och följer därför med
+mellan sidorna — precis som `novaTheme` / `novaDevice`.
+
+**Varför ett lager och inte nycklar i markupen:** React skriver bara om textnoder
+vars värde faktiskt ändrats, så en översatt nod står kvar mellan renderingar.
+Nymonterade noder (ny skärm, ny flik) kommer tillbaka på svenska och fångas av
+`componentDidUpdate`, som körs innan webbläsaren ritar — därför syns ingen blinkning.
+
+Varje nod cachar sin svenska källa och sin engelska form. Om ett värde dyker upp
+som är *varken* svenska eller engelska har React skrivit nytt dynamiskt innehåll
+(t.ex. nedräkningen på `07`), och cachen sås om. Därför fryser översättningen
+aldrig dynamisk text.
+
+### När du lägger till text
+
+Lägg till raden i **den sidans** `FX_I18N` (tabellerna är medvetet per sida, så
+samma ord kan översättas olika i olika sammanhang — `av` betyder t.ex. "off" i
+en switch på `05`, men "of" i en stegräknare på `04`).
+
+Saknas en rad blir texten kvar på svenska i engelskt läge — den kraschar inte.
+
+**Översätts inte** (medvetet): personnamn, `Sokigo`, `Fenix`, `Gaida`, `Vega`,
+`Addnode Group`, orter, fastighetsbeteckningar (`BORGENS 6`), adresser,
+diarienummer (`BYGG 2026-000113`), färgnamn och PMS-koder.
+
+### Utskrift
+
+På rapportmallen (`02`) har globen `class="screen-only"` och följer därför inte
+med i PDF:en. Skriv ut i det språk du vill leverera — översättningen ligger i DOM:en,
+så utskriften får samma språk som skärmen.
